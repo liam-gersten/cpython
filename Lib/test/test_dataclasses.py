@@ -757,8 +757,8 @@ class TestCase(unittest.TestCase):
                 class Subclass(typ): pass
 
                 with self.assertRaisesRegex(ValueError,
-                                            f"mutable default .*Subclass'>"
-                                            ' for field z is not allowed'
+                                            "mutable default .*Subclass'>"
+                                            " for field z is not allowed"
                                             ):
                     @dataclass
                     class Point:
@@ -3671,7 +3671,7 @@ class TestStringAnnotations(unittest.TestCase):
 ByMakeDataClass = make_dataclass('ByMakeDataClass', [('x', int)])
 ManualModuleMakeDataClass = make_dataclass('ManualModuleMakeDataClass',
                                            [('x', int)],
-                                           module='test.test_dataclasses')
+                                           module=__name__)
 WrongNameMakeDataclass = make_dataclass('Wrong', [('x', int)])
 WrongModuleMakeDataclass = make_dataclass('WrongModuleMakeDataclass',
                                           [('x', int)],

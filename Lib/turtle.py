@@ -126,7 +126,7 @@ _tg_screen_functions = ['addshape', 'bgcolor', 'bgpic', 'bye',
         'setworldcoordinates', 'textinput', 'title', 'tracer', 'turtles', 'update',
         'window_height', 'window_width']
 _tg_turtle_functions = ['back', 'backward', 'begin_fill', 'begin_poly', 'bk',
-        'circle', 'clear', 'clearstamp', 'clearstamps', 'clone', 'color', 'teleport',
+        'circle', 'clear', 'clearstamp', 'clearstamps', 'clone', 'color',
         'degrees', 'distance', 'dot', 'down', 'end_fill', 'end_poly', 'fd',
         'fillcolor', 'filling', 'forward', 'get_poly', 'getpen', 'getscreen', 'get_shapepoly',
         'getturtle', 'goto', 'heading', 'hideturtle', 'home', 'ht', 'isdown',
@@ -135,7 +135,7 @@ _tg_turtle_functions = ['back', 'backward', 'begin_fill', 'begin_poly', 'bk',
         'pu', 'radians', 'right', 'reset', 'resizemode', 'rt',
         'seth', 'setheading', 'setpos', 'setposition', 'settiltangle',
         'setundobuffer', 'setx', 'sety', 'shape', 'shapesize', 'shapetransform', 'shearfactor', 'showturtle',
-        'speed', 'st', 'stamp', 'tilt', 'tiltangle', 'towards',
+        'speed', 'st', 'stamp', 'teleport', 'tilt', 'tiltangle', 'towards',
         'turtlesize', 'undo', 'undobufferentries', 'up', 'width',
         'write', 'xcor', 'ycor']
 _tg_utilities = ['write_docstringdict', 'done']
@@ -1614,6 +1614,13 @@ class TNavigator(object):
         """move turtle to position end."""
         self._position = end
 
+    def teleport(self, x=None, y=None, *, fill_gap: bool = False) -> None:
+        """To be overwritten by child class RawTurtle.
+        Includes no TPen references."""
+        new_x = x if x is not None else self._position[0]
+        new_y = y if y is not None else self._position[1]
+        self._position = Vec2D(new_x, new_y)
+
     def forward(self, distance):
         """Move the turtle forward by the specified distance.
 
@@ -2293,6 +2300,15 @@ class TPen(object):
         else:
             return self._color(self._fillcolor)
 
+    def teleport(self, x=None, y=None, *, fill_gap: bool = False) -> None:
+        """To be overwritten by child class RawTurtle.
+        Includes no TNavigator references.
+        """
+        pendown = self.isdown()
+        if pendown:
+            self.pen(pendown=False)
+        self.pen(pendown=pendown)
+
     def showturtle(self):
         """Makes the turtle visible.
 
@@ -2711,13 +2727,13 @@ class RawTurtle(TPen, TNavigator):
             raise TurtleGraphicsError("bad color sequence: %s" % str(args))
         return "#%02x%02x%02x" % (r, g, b)
     
-    def teleport(self, x=None, y=None, fill_gap: bool = False) -> None:
+    def teleport(self, x=None, y=None, *, fill_gap: bool = False) -> None:
         """Instantly move turtle to an absolute position.
 
         Arguments:
         x -- a number      or     None
         y -- a number             None
-        fill_gap -- a boolean     None
+        fill_gap -- a boolean     This argument must be specified by name.
 
         call: teleport(x, y)         # two coordinates
         --or: teleport(x)            # teleport to x position, keeping y as is
@@ -2735,7 +2751,7 @@ class RawTurtle(TPen, TNavigator):
         Example (for a Turtle instance named turtle):
         >>> tp = turtle.pos()
         >>> tp
-        (0.00, 0.00)
+        (0.00,0.00)
         >>> turtle.teleport(60)
         >>> turtle.pos()
         (60.00,0.00)
@@ -2752,13 +2768,8 @@ class RawTurtle(TPen, TNavigator):
             self.pen(pendown=False)
         if was_filling and not fill_gap:
             self.end_fill()
-        new_x, new_y = self._position
-        if x is not None and y is not None:
-            new_x, new_y = x, y
-        elif x is not None:
-            new_x, new_y = x, self._position[1]
-        elif y is not None:
-            new_x, new_y = self._position[0], y
+        new_x = x if x is not None else self._position[0]
+        new_y = y if y is not None else self._position[1]
         self._position = Vec2D(new_x, new_y)
         self.pen(pendown=pendown)
         if was_filling and not fill_gap:
