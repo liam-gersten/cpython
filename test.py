@@ -10,7 +10,7 @@ def init_turtle():
     print("\ninit turtle")
     yertle = turtle.Turtle()
     yertle.ht()
-    yertle.speed(0)
+    yertle.speed(4)
     yertle.up()
     return yertle
 
@@ -78,7 +78,7 @@ def draw_circle(x, y):
     print("\ndrawing circle")
     global count
     global circle
-    radius = 80
+    radius = 20
     yertle = init_turtle()  # Creating the turtle with this function = error
     yertle.color("red")
     yertle.setpos(x, y-radius)

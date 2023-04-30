@@ -1305,30 +1305,7 @@ class TurtleScreen(TurtleScreenBase):
         tracing = self._tracing
         self._tracing = True
         for t in self.turtles():
-            
-            allowed_cats = {"a_polygon", "b_hidden"}
-            screen = t.screen
-            shape = screen._shapes[t.turtle.shapeIndex]
-            ttype = shape._type
-            cat = f"a_{ttype}"
-            if not (t._shown and screen._updatecounter == 0 and screen._tracing > 0):
-                if t._hidden_from_screen:
-                    cat = f"b_hidden"
-                else:
-                    cat = f"b_{ttype}"
-            print(f"\n\t{cat}, color = {t._pencolor}, speed = {t.speed()}")
             t._update_data()
-            # if t._pencolor == "#FFFFFF":
-            #     tshape = shape._data
-            #     titem = t.turtle._item
-            #     if t._resizemode == "noresize": w = 1
-            #     elif t._resizemode == "auto": w = t._pensize
-            #     else: w = t._outlinewidth
-            #     shape = t._polytrafo(t._getshapepoly(tshape))
-            #     fc, oc = t._fillcolor, t._pencolor
-            #     screen._drawpoly(titem, shape, fill=fc, outline=oc,
-            #                                           width=w)
-            # else:
             t._drawturtle()
         self._tracing = tracing
         self._update()
@@ -2025,8 +2002,43 @@ class TNavigator(object):
             self._rotate(w)
         self._rotate(-w2)
         if speed == 0:
+            # print(f"Call self._tracer({tr}, {dl})")
+            # reset_shown_true = []
+            # reset_hidden_false = []
+            # was_shown = self._shown
+            # for t in self.screen.turtles():
+            #     if t._shown:
+            #         reset_shown_true.append(t)
+            #         t._shown = False
+            #     if not t._hidden_from_screen:
+            #         reset_hidden_false.append(t)
+            #         t._hidden_from_screen = True
+            # self._shown = True
+            # self._tracer(flag=tr, delay=dl)
+            # for t in reset_shown_true:
+            #     t._shown = True
+            # for t in reset_hidden_false:
+            #     t._hidden_from_screen = False
+            # if was_shown:
+            #     self._shown = False
+
+
             print(f"Call self._tracer({tr}, {dl})")
-            self._tracer(tr, dl)
+            previous_values = []
+            for t in self.screen.turtles():
+                if t == self:
+                    continue
+                value_tuple = (t, t._shown, t._hidden_from_screen)
+                t._shown = False
+                t._hidden_from_screen = True
+                previous_values.append(value_tuple)
+            
+            self._tracer(flag=tr, delay=dl)
+            for values in previous_values:
+                t, _shown, _hidden_from_screen = values
+                t._shown = _shown
+                t._hidden_from_screen = _hidden_from_screen
+            
         self.speed(speed)
         if self.undobuffer:
             self.undobuffer.cumulate = False
@@ -3048,6 +3060,13 @@ class RawTurtle(TPen, TNavigator):
         shape = screen._shapes[self.turtle.shapeIndex]
         ttype = shape._type
         titem = self.turtle._item
+        cat = f"a_{ttype}"
+        if not (self._shown and screen._updatecounter == 0 and screen._tracing > 0):
+            if self._hidden_from_screen:
+                cat = f"b_hidden"
+            else:
+                cat = f"b_{ttype}"
+        print(f"\t{cat}, color = {self._pencolor}, speed = {self.speed()}")
         if self._shown and screen._updatecounter == 0 and screen._tracing > 0:
             print(f"\t\tSetting self._hidden_from_screen = False")
             self._hidden_from_screen = False
@@ -3069,7 +3088,7 @@ class RawTurtle(TPen, TNavigator):
                                      outline=self._cc(oc), width=self._outlinewidth, top=True)
         else:
             if self._hidden_from_screen:
-                print(f"\t\thidden: {self._shown}, {screen._updatecounter}, {screen._tracing}")
+                print(f"\t\tself._shown: {self._shown}, {screen._updatecounter}, {screen._tracing}")
                 return
             if ttype == "polygon":
                 screen._drawpoly(titem, ((0, 0), (0, 0), (0, 0)), "", "")
