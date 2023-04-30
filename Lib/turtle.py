@@ -559,7 +559,6 @@ class TurtleScreenBase(object):
     def _update(self):
         """Redraw graphics items on canvas
         """
-        # print("_update")
         self.cv.update()
 
     def _delay(self, delay):
@@ -1299,7 +1298,6 @@ class TurtleScreen(TurtleScreenBase):
     def update(self):
         """Perform a TurtleScreen update.
         """
-        print("update")
         tracing = self._tracing
         self._tracing = True
         for t in self.turtles():
@@ -1971,7 +1969,6 @@ class TNavigator(object):
         if self.undobuffer:
             self.undobuffer.push(["seq"])
             self.undobuffer.cumulate = True
-        
         speed = self.speed()
         if extent is None:
             extent = self._fullcircle
@@ -1989,23 +1986,18 @@ class TNavigator(object):
             self._tracer(0, 0)
         else:
             self.speed(0)
-        # self.speed(0)
         self._rotate(w2)
         for i in range(steps):
             self.speed(speed)
             self._go(l)
             self.speed(0)
             self._rotate(w)
-        
         self._rotate(-w2)
-        print("done1")
         if speed == 0:
             self._tracer(tr, dl)
-        print("done2")
         self.speed(speed)
         if self.undobuffer:
             self.undobuffer.cumulate = False
-        
 
 ## three dummy methods to be implemented by child class:
 
@@ -3019,7 +3011,6 @@ class RawTurtle(TPen, TNavigator):
     def _drawturtle(self):
         """Manages the correct rendering of the turtle with respect to
         its shape, resizemode, stretch and tilt etc."""
-        # print("_drawturtle")
         screen = self.screen
         shape = screen._shapes[self.turtle.shapeIndex]
         ttype = shape._type
