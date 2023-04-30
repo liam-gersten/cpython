@@ -78,7 +78,7 @@ def draw_circle(x, y):
     print("\ndrawing circle")
     global count
     global circle
-    radius = 20
+    radius = 80
     yertle = init_turtle()  # Creating the turtle with this function = error
     yertle.color("red")
     yertle.setpos(x, y-radius)
@@ -107,7 +107,6 @@ def draw_x(x, y):
 
 
 def mark(x, y):
-    print("\nmark")
     global circle
     global occupied
     column = int(x // 80)
@@ -148,15 +147,3 @@ count = 0
 if __name__ == '__main__':
     main()
     turtle.TK.mainloop()
-
-"""
-mark
-
-drawing circle
-
-init turtle
-update
-"""
-"""
-
-"""

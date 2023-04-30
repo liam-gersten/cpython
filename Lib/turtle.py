@@ -1269,7 +1269,11 @@ class TurtleScreen(TurtleScreenBase):
         if delay is not None:
             self._delayvalue = int(delay)
         if self._tracing:
+            print("calling self.update()")
             self.update()
+        else:
+            print("not calling self.update()")
+        print("returning from tracer")
 
     def delay(self, delay=None):
         """ Return or set the drawing delay in milliseconds.
@@ -1301,7 +1305,30 @@ class TurtleScreen(TurtleScreenBase):
         tracing = self._tracing
         self._tracing = True
         for t in self.turtles():
+            
+            allowed_cats = {"a_polygon", "b_hidden"}
+            screen = t.screen
+            shape = screen._shapes[t.turtle.shapeIndex]
+            ttype = shape._type
+            cat = f"a_{ttype}"
+            if not (t._shown and screen._updatecounter == 0 and screen._tracing > 0):
+                if t._hidden_from_screen:
+                    cat = f"b_hidden"
+                else:
+                    cat = f"b_{ttype}"
+            print(f"\n\t{cat}, color = {t._pencolor}, speed = {t.speed()}")
             t._update_data()
+            # if t._pencolor == "#FFFFFF":
+            #     tshape = shape._data
+            #     titem = t.turtle._item
+            #     if t._resizemode == "noresize": w = 1
+            #     elif t._resizemode == "auto": w = t._pensize
+            #     else: w = t._outlinewidth
+            #     shape = t._polytrafo(t._getshapepoly(tshape))
+            #     fc, oc = t._fillcolor, t._pencolor
+            #     screen._drawpoly(titem, shape, fill=fc, outline=oc,
+            #                                           width=w)
+            # else:
             t._drawturtle()
         self._tracing = tracing
         self._update()
@@ -1980,20 +2007,25 @@ class TNavigator(object):
         l = 2.0 * radius * math.sin(math.radians(w2)*self._degreesPerAU)
         if radius < 0:
             l, w, w2 = -l, -w, -w2
-        tr = self._tracer()
-        dl = self._delay()
+        tr = self._tracer() # 1 if speed 0
+        dl = self._delay() # 10 if speed 0
+        print(f"Initial tr, dl = {tr}, {dl}")
         if speed == 0:
+            print(f"Call self._tracer(0, 0)")
             self._tracer(0, 0)
+            print(f"Done calling self._tracer(0, 0)")
         else:
             self.speed(0)
         self._rotate(w2)
         for i in range(steps):
+            print(f"i = {i}")
             self.speed(speed)
             self._go(l)
             self.speed(0)
             self._rotate(w)
         self._rotate(-w2)
         if speed == 0:
+            print(f"Call self._tracer({tr}, {dl})")
             self._tracer(tr, dl)
         self.speed(speed)
         if self.undobuffer:
@@ -2648,6 +2680,7 @@ class RawTurtle(TPen, TNavigator):
         if self.screen._updatecounter != 0:
             return
         if len(self.currentLine)>1:
+            print(f"\t\tdrawline")
             self.screen._drawline(self.currentLineItem, self.currentLine,
                                   self._pencolor, self._pensize)
 
@@ -3016,6 +3049,7 @@ class RawTurtle(TPen, TNavigator):
         ttype = shape._type
         titem = self.turtle._item
         if self._shown and screen._updatecounter == 0 and screen._tracing > 0:
+            print(f"\t\tSetting self._hidden_from_screen = False")
             self._hidden_from_screen = False
             tshape = shape._data
             if ttype == "polygon":
@@ -3035,6 +3069,7 @@ class RawTurtle(TPen, TNavigator):
                                      outline=self._cc(oc), width=self._outlinewidth, top=True)
         else:
             if self._hidden_from_screen:
+                print(f"\t\thidden: {self._shown}, {screen._updatecounter}, {screen._tracing}")
                 return
             if ttype == "polygon":
                 screen._drawpoly(titem, ((0, 0), (0, 0), (0, 0)), "", "")
@@ -3044,6 +3079,7 @@ class RawTurtle(TPen, TNavigator):
             elif ttype == "compound":
                 for item in titem:
                     screen._drawpoly(item, ((0, 0), (0, 0), (0, 0)), "", "")
+            print(f"\t\t\tSetting self._hidden_from_screen = True")
             self._hidden_from_screen = True
 
 ##############################  stamp stuff  ###############################
