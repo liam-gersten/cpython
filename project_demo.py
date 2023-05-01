@@ -1,4 +1,5 @@
 import Lib.turtle as turtle
+import Lib.old_turtle as old_turtle
 
 
 def drawStar(left: int, color: str) -> None:
@@ -27,6 +28,29 @@ def demo_teleport(teleport_func) -> None:
     turtle.done()
 
 
-if __name__ == "__main__":
+def show_teleport_before() -> None:
     demo_teleport(turtle.goto)
-    # demo_teleport(turtle.teleport)
+
+
+def show_teleport_after() -> None:
+    demo_teleport(turtle.teleport)
+
+
+def show_circle_before() -> None:
+    global use_turtle
+    use_turtle = old_turtle
+    import demo_tic_tac_toe
+
+
+def show_circle_after() -> None:
+    global use_turtle
+    use_turtle = old_turtle
+    import demo_tic_tac_toe
+
+
+if __name__ == "__main__":
+    # show_teleport_before()
+    # show_teleport_after()
+    # show_circle_before()
+    show_circle_after()
+
